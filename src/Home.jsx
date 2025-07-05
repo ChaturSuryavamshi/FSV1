@@ -3,17 +3,7 @@ import Nav from "./components/nav";
 import { Outlet } from "react-router-dom";
 
 export default function Home() {
-  const [user , setUser] = useState(null);
-  useEffect(() => {
-    
-    const userlogged = localStorage.getItem('loggeduser');
-    if(userlogged) {
-      setUser(JSON.parse(userlogged));
-      console.log(user);
-    }
-    
-  }, [user]);
-  console.log('logged' + user)
+ 
   return (
     <div className="h-full w-full grid grid-rows-[auto_1fr_auto]">
       <Nav />

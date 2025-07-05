@@ -1,10 +1,10 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import LoginImg from "./assets/login_img.jpg";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-
+import {useUser} from "@/context/context"
 import { useNavigate } from 'react-router-dom';  // cs changes 
 import { useState } from "react";
 
@@ -14,51 +14,73 @@ export default function Login() {
   // cs changes starts  
   const [fsid, setfsId] = useState('');
   const [fspwd, setfspwd] = useState('');
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({});
  
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const userSchema = z.object({
+    userId: z.string().min(6 , 'Please enter valid ID'),
+    password: z.string().min(6 , 'Password is too short')
+  })
+  const handleSubmit = (e) => {
       e.preventDefault();
-      if (fsid === '' || fspwd === '') {
-      setError('Please fill in both fields');
-      return;
-  } 
+    const validate = userSchema.safeParse({userId:fsid , password:fspwd});
+    if (!validate.success) {
+      console.log(validate.data);
+      const fieldErrors = {};
+      validate.error.errors.forEach((err) => {
+        fieldErrors[err.path[0]] = err.message;
+      });
+      setErrors(fieldErrors);
+
+    } else {
+      setErrors({});
+      // console.log("Form data", validate.data);
+      const userId = validate.data.userId;
+      localStorage.setItem("loggeduser", JSON.stringify(userId));
+      navigate('/dashboard');
+      // submit your data here (e.g. API call)
+    }
+  //     if (fsid === '' || fspwd === '') {
+  //     setError('Please fill in both fields');
+  //     return;
+  // } 
+  
 
   const userData = { 
                       fsid,
                       fspwd
                     };
 
-  try 
-  {
-    const response = await fetch('https://localhost:7046/api/User/FsLogin', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(userData)
-    });
+  // try 
+  // {
+  //   const response = await fetch('https://localhost:7046/api/User/FsLogin', {
+  //   method: 'POST',
+  //   headers: {
+  //     'Content-Type': 'application/json'
+  //   },
+  //   body: JSON.stringify(userData)
+  //   });
   
-    if (response.ok) 
-    { 
-      alert('User Login successfully!');
-      setfsId(''); 
-      setfspwd('');
-      const {fsid} = userData;
-       localStorage.setItem("loggeduser" , JSON.stringify(fsid));
-      navigate('/dashboard');
-    } 
-    else 
-    {
-      const errorText = await response.text();
-      alert('Login failed: ' + errorText);
-    }
-  } 
-  catch (error) 
-  {
-    alert('Error connecting to the server: ' + error.message);
-  }
+  //   if (response.ok) 
+  //   { 
+  //     alert('User Login successfully!');
+  //     setfsId(''); 
+  //     setfspwd('');
+  //     // const {fsid} = userData;
+  //     localStorage.setItem("loggeduser" , JSON.stringify(fsid));
+  //     navigate('/dashboard');
+  //   } 
+  //   else 
+  //   {
+  //     const errorText = await response.text();
+  //     alert('Login failed: ' + errorText);
+  //   }
+  // } 
+  // catch (error) 
+  // {
+  //   alert('Error connecting to the server: ' + error.message);
+  // }
   
 
 };
@@ -78,12 +100,14 @@ export default function Login() {
                     Login to your FS account
                   </p>
                 </div>
-                <div className="grid gap-3">
+                <div className="grid gap-3 relative">
                   <Label htmlFor="fsid">FS Id</Label>
                   {/* cs changes  */}
-                  <Input id="fsid" type="text" onChange={(e) => setfsId(e.target.value)} required />  
+                  <Input id="fsid" type="text" onChange={(e) => setfsId(e.target.value)}  />  
+                  {errors.userId && <p className="text-red-500 text-xs absolute bottom-[-1.2rem]">{errors.userId}</p>}
+
                 </div>
-                <div className="grid gap-3">
+                <div className="grid gap-3 relative">
                   <div className="flex items-center">
                     <Label htmlFor="password">Password</Label>
                     <a href="#" className="ml-auto text-sm underline-offset-2 hover:underline" >
@@ -92,7 +116,9 @@ export default function Login() {
                   </div>
 
                    {/* cs changes  */}
-                  <Input id="fspwd" type="password" onChange={(e) => setfspwd(e.target.value)}  required />
+                  <Input id="fspwd" type="password" onChange={(e) => setfspwd(e.target.value)}  />
+                  {errors.password && <p className="text-red-500 text-xs absolute bottom-[-1.2rem]">{errors.password}</p>}
+
                 </div>
                 <Button type="submit" className="w-full">
                   Login
@@ -106,19 +132,8 @@ export default function Login() {
                 </div>
               </div>
             </form>
-            {/* <div className="bg-muted relative hidden md:block">
-            <img
-              src={LoginImg}
-              alt="Image"
-              className="absolute bottom-0  h-full w-full object-cover  dark:brightness-[0.2] dark:grayscale"
-            />
-          </div> */}
           </CardContent>
         </Card>
-        {/* <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
-      </div> */}
       </div>
     </div>
   );
