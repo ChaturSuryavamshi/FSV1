@@ -10,28 +10,21 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {useUser} from "@/context/context"
 
 export default function Billing() {
-  const [open, setOpen] = useState(false);
-  const [fsname, setFsname] = useState('');
+
+  const [open, setOpen] = useState(false); 
   const [selectedDate, setSelectedDate] = useState(null);
   const [data, setData] = useState([]);
   const [message, setMessage] = useState('');
   const location = useLocation();
-  const navigate = useNavigate();
-  const { fsid } = location.state || {};
+  const navigate = useNavigate(); 
 
-  // useEffect(() => {
-  //   if (fsid) {
-  //     fetch(`https://localhost:7068/api/Users/FsGetUserData?fsid=${fsid}`)
-  //       .then((response) => response.json())
-  //       .then((data) => {
-  //         setFsname(data.fsname);
-  //       })
-  //       .catch((error) => console.error('Error fetching user data:', error));
-  //   }
-  // }, [fsid]);
-
+  const {user} = useUser();  
+    
+  const { fsId , fsName , fsAddr} =  user.userDeatails;
+   
   const handleDownloadExcel = () => {
     window.location.href = '/files/ExcelFormat.xlsx';
   };
@@ -65,7 +58,7 @@ export default function Billing() {
       }
 
       const rows = jsonData.slice(1).map((row) => ({
-        fsid,
+        fsId,
         selectedDate: selectedDate || '',
         Date: row[0],
         CN: row[1],
@@ -93,23 +86,29 @@ export default function Billing() {
       return;
     }
 
-    const payload = filtered.map(row => ({
-      fsid,
-      selectedDate,
-      Date: row.Date,
-      CN: row.CN,
-      VNO: row.VNO,
-      FT: row.FT,
-      RT: row.RT,
-      QT: row.QT,
-      AMT: row.AMT,
-    }));
+    const payload = filtered.map(row => ({ 
+      'fsid':fsId,
+      'selectedDate':selectedDate,
+      'date': row.Date,
+      'cn': row.CN,
+      'vno': row.VNO,
+      'ft': row.FT,
+      'rt': row.RT,
+      'qt': row.QT,
+      'amt': row.AMT,
+    })); 
+
+    const data111 = {
+                  'fsid': fsId,
+                  'billingDetails': payload
+                }
+
 
     try {
-      const response = await fetch('https://localhost:7068/api/Users/FsInsertFsData', {
+      const response = await fetch('https://localhost:7266/api/FsData/SaveFsBillingDetails', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(data111),
       });
 
       if (response.ok) {
@@ -133,7 +132,7 @@ export default function Billing() {
     setData([
       ...data,
       {
-        fsid,
+        fsId,
         selectedDate,
         Date: '',
         CN: '',
@@ -216,8 +215,8 @@ export default function Billing() {
 
       {/* FS Info */}
       <div className="mb-6">
-        <p className="text-lg font-semibold mb-2">FS Name</p>
-        <p className="text-sm text-gray-700">{fsname || 'FS Details'}</p>
+        <p className="text-lg font-semibold mb-2">{fsName}</p>
+        <p className="text-sm text-gray-700">{fsAddr}</p>
       </div>
 
       {message && <div className="text-red-600 mb-4">{message}</div>}

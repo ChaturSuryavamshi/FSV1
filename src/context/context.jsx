@@ -10,16 +10,14 @@ export const UserProvider = ({children}) => {
     const [user , setUser] = useState({
         userID : localStorage.getItem('loggeduser') || null,
         userDeatails : {
-            name: "",
-            address: "",
-            type: "",
-            location: "",
-            phone: "",
-            email: "",
-            password: "",
-            oname: "",
-            ophone: "",
-            oemail: "",
+            fsAddr: "",
+            fsEmail: "",
+            fsId : "",
+            fsName: "",
+            fsOwnerEmail: "",
+            fsOwnerName: "",
+            fsOwnerPhone: "",
+            fsPhone: ""
           }
     });
     return(
