@@ -32,7 +32,7 @@ const registerSchema = z.object({
 export default function Register() {
   const navigate = useNavigate();
 
-  const {setUser} = useState();
+  const {setUser} = useUser;
   const [formData, setFormData] = useState({
     name: "",
     address: "",
@@ -55,7 +55,7 @@ export default function Register() {
     }));
     setUser((prev) => ({
       ...prev,
-      userDeatails: setUser,
+      userDeatails: formData,
     }))
   };
 
