@@ -8,15 +8,25 @@ import {
 } from "@/components/ui/popover";
 import { User, LogOut } from "lucide-react";
 
+import { useUser } from "@/context/context";
+
+
 export default function Nav() {
-  const user = "Chatur";
+
+const {user} = useUser();  
+
+  console.log(user.userDeatails.fsName);
+
+  const username = user.userDeatails.fsName;
+
+
   const location = useLocation();
  const navigate = useNavigate();
 
   return (
     <header className="flex items-center justify-between p-6 bg-black text-white font-mono">
       <div className="flex items-center">
-        <p className="text-xl">Welcome {user}</p>
+        <p className="text-xl">Welcome {username}</p>
       </div>
       <nav>
         <ul className="flex space-x-8 font-mono items-center">

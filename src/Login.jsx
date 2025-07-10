@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {useUser} from "@/context/context"
 import { useNavigate } from 'react-router-dom';  // cs changes 
-import { useState } from "react";
+import { useState } from "react"; 
 
 
 export default function Login() {
@@ -18,11 +18,14 @@ export default function Login() {
  
   const navigate = useNavigate();
 
+    const {setUser} = useUser();
+ 
   const userSchema = z.object({
     userId: z.string().min(6 , 'Please enter valid ID'),
     password: z.string().min(6 , 'Password is too short')
   })
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
       e.preventDefault();
     const validate = userSchema.safeParse({userId:fsid , password:fspwd});
     if (!validate.success) {
@@ -38,51 +41,53 @@ export default function Login() {
       // console.log("Form data", validate.data);
       const userId = validate.data.userId;
       localStorage.setItem("loggeduser", JSON.stringify(userId));
-      navigate('/dashboard');
-      // submit your data here (e.g. API call)
+ 
     }
-  //     if (fsid === '' || fspwd === '') {
-  //     setError('Please fill in both fields');
-  //     return;
-  // } 
-  
+ 
 
   const userData = { 
                       fsid,
                       fspwd
                     };
-
-  // try 
-  // {
-  //   const response = await fetch('https://localhost:7046/api/User/FsLogin', {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json'
-  //   },
-  //   body: JSON.stringify(userData)
-  //   });
-  
-  //   if (response.ok) 
-  //   { 
-  //     alert('User Login successfully!');
-  //     setfsId(''); 
-  //     setfspwd('');
-  //     // const {fsid} = userData;
-  //     localStorage.setItem("loggeduser" , JSON.stringify(fsid));
-  //     navigate('/dashboard');
-  //   } 
-  //   else 
-  //   {
-  //     const errorText = await response.text();
-  //     alert('Login failed: ' + errorText);
-  //   }
-  // } 
-  // catch (error) 
-  // {
-  //   alert('Error connecting to the server: ' + error.message);
-  // }
-  
-
+ 
+  try 
+  {
+    const response = await fetch('https://localhost:7266/api/User/FsLogin', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(userData)
+    });
+ 
+    const data = await response.json();
+ 
+    if (response.ok) 
+    { 
+      alert('User Login successfully!');
+      setfsId(''); 
+      setfspwd('');
+      // const {fsid} = userData;3
+      localStorage.setItem("JwtToken" , JSON.stringify(data.token));
+        
+    setUser((prev) => ({
+      ...prev,
+      userDeatails: data.user,
+    })) 
+ 
+      navigate('/dashboard');
+    } 
+    else 
+    {
+      const errorText = await response.text();
+      alert('Login failed: ' + errorText);
+    }
+  } 
+  catch (error) 
+  {
+    alert('Error connecting to the server: ' + error.message);
+  }
+   
 };
 // cs changes ends
 
@@ -126,7 +131,7 @@ export default function Login() {
 
                 <div className="text-center text-sm">
                   Don&apos;t have an account?{" "}
-                  <a href="#" className="underline underline-offset-4">
+                  <a href="#" className="underline underline-offset-4" onClick={() => navigate("/register")}>
                     Register
                   </a>
                 </div>

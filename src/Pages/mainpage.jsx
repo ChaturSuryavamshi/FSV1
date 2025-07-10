@@ -4,9 +4,12 @@ import { useUser } from "@/context/context";
 
 export default function mainpage() {
 
+  const {user} = useUser();
+  
   const navigate = useNavigate();
-  const { user } = useUser();
+ 
   console.log(user);
+
   return (
     <div>
       <div className="grid grid-cols-3 p-8 gap-6">

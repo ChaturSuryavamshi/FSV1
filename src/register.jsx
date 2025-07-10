@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import {useUser} from './context/context'
 
 const registerSchema = z.object({
@@ -32,7 +33,7 @@ const registerSchema = z.object({
 export default function Register() {
   const navigate = useNavigate();
 
-  const {setUser} = useState();
+  const {setUser} = useUser();
   const [formData, setFormData] = useState({
     name: "",
     address: "",
@@ -53,17 +54,20 @@ export default function Register() {
       ...prev,
       [field]: value,
     }));
-    setUser((prev) => ({
-      ...prev,
-      userDeatails: setUser,
-    }))
+ 
+    /// commented by cs 07062025
+    // setUser((prev) => ({
+    //   ...prev,
+    //   userDeatails: setUser,
+    // }))
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const result = registerSchema.safeParse(formData);
 
-    if (!result.success) {
+    if (!result.success) 
+    {
       const fieldErrors = {};
       result.error.errors.forEach((err) => {
         fieldErrors[err.path[0]] = err.message;
@@ -71,10 +75,57 @@ export default function Register() {
       setErrors(fieldErrors);
       console.log(formData);
 
-    } else {
+    } 
+    else 
+    {
       setErrors({});
       console.log("✅ Form is valid!", result.data);
-      // submit your data here (e.g. API call)
+
+      const userData = {
+          //fsid: result.data.type + '_' + result.data.location + '0044',
+          fsname: result.data.name,
+          fsaddr: result.data.address,
+          fsoptype: result.data.type,
+          fslocdis: result.data.location,
+          fsphno: result.data.phone,
+          fsemailid: result.data.email,
+          fspwd: result.data.password,
+          fsownname: result.data.oname,
+          fsownemail: result.data.oemail,
+          fsownmobno: result.data.ophone
+      };
+      
+      console.log(userData);
+ 
+      try {
+              const response = await fetch('https://localhost:7266/api/User/FsRegister', {
+                  method: 'POST',
+                  headers: {
+                  'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify(userData)
+              });
+
+              const data = await response.json();
+              
+              if (response.ok) {
+              
+                  console.log("User registered successfully with fsid:", data.fsid);
+
+                  alert("User registered successfully Id : " + data.fsid);
+
+                  // Redirect to login page
+                  navigate('/login');
+              
+              } 
+              else {
+                  console.error("Error:", data);
+              }
+          } 
+          catch (error) {
+          console.error("Network error:", error);
+          }
+ 
     }
   };
 
@@ -133,8 +184,8 @@ export default function Register() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          <SelectItem value="mys">MYS</SelectItem>
-                          <SelectItem value="bng">BNG</SelectItem>
+                          <SelectItem value="MYS">MYS</SelectItem>
+                          <SelectItem value="BNG">BNG</SelectItem>
                         </SelectGroup>
                       </SelectContent>
                     </Select>
