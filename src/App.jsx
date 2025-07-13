@@ -17,23 +17,29 @@ function App() {
   //  console.log(fsidval);
   return (
     <BrowserRouter>
-    <UserProvider>
-      <div className="h-[100dvh] w-full">
-        <Routes>
-          <Route path="/dashboard" element={<Home />}>
-            <Route index element={<Mainpage />} />
-            <Route path="billing" element={<Billing />} />
-            <Route path="reports" element={<Report />} />
-            <Route path="readings" element={<Reading />} />
+  <UserProvider>
+    <div className="h-[100dvh] w-full">
+      <Routes>
+        <Route path="/dashboard" element={<Home />}>
+          <Route index element={<Mainpage />} />
+          <Route path="billing" element={<Billing />} />
+          
+          {/* Reading Route with nested routes inside */}
+          <Route path="readings" element={<Reading />}>
             <Route path="closing-opening-readings" element={<ViewReadings />} />
             <Route path="submitted-readings" element={<ViewSubmitted />} />
           </Route>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-        </Routes>
-      </div>
-      </UserProvider>
-    </BrowserRouter>
+
+          <Route path="reports" element={<Report />} />
+        </Route>
+
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Routes>
+    </div>
+  </UserProvider>
+</BrowserRouter>
+
   );
 }
 
