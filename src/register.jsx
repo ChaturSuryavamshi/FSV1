@@ -111,12 +111,9 @@ export default function Register() {
               if (response.ok) {
               
                   console.log("User registered successfully with fsid:", data.fsid);
-
                   alert("User registered successfully Id : " + data.fsid);
-
                   // Redirect to login page
                   navigate('/login');
-              
               } 
               else {
                   console.error("Error:", data);
